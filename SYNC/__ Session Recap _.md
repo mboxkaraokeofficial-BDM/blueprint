@@ -1,94 +1,59 @@
-# ⚙️ Session Recap — 
+# 🔧 Session Recap — 
 
-- **Notion ID:** 34a1ac219abd81ef866ef8d80a05a9e7
-- **URL:** https://www.notion.so/Session-Recap-Make-com-Auto-Sync-Google-Sheet-Notion-22-04-2026-34a1ac219abd81ef866ef8d80a05a9e7
-- **Last Edited:** 2026-04-22T08:47:00.000Z
+- **Notion ID:** 34e1ac219abd8193a0c3c7718ee2cb63
+- **URL:** https://www.notion.so/Session-Recap-Make-com-Blueprint-Final-Fix-26-04-2026-34e1ac219abd8193a0c3c7718ee2cb63
+- **Last Edited:** 2026-04-26T02:59:00.000Z
 
 ---
 
-## 🎯 เป้าหมาย Session นี้
+Date: 26 April 2026  
 
-สร้างระบบ Auto-Sync อัตโนมัติระหว่าง Google Sheet (Lead Import Template) กับ Notion Lead DB
+Owner: Pamelosam  
 
-## ✅ สิ่งที่ทำเสร็จแล้ว
+Scenario: #5406773 — MBOX LINE OA Auto Lead Capture  
 
-### Scenario 1 — New Lead (สร้าง record ใหม่)
+Status: 🟡 BLOCKED ON USER UI ACTION (MCP cannot reach scenario blueprint)
 
-- ID: 5391919
-- Status: 🟢 ACTIVE
-- Flow: Google Sheets Watch New Rows → Filter (Notion ID ว่าง) → Notion Create Page → Write Notion ID กลับ Sheet column S
-- Trigger: Polling ทุก 15 นาที
-- Connection: MBOX Google Sheets + MBOX Notion (Pichaya)
-### Scenario 2 — Update Lead (อัปเดต record เดิม)
+## ✅ ทำอะไรไปบ้างใน session นี้
 
-- ID: 5392962
-- Status: 🟢 ACTIVE
-- Flow: Google Sheets Watch Changes → Filter (Notion ID มีค่า) → Notion Update a Data Source Item
-- Trigger: Polling ทุก 15 นาที
-- Notion Module: Update a Data Source Item (Data Source mode)
-- Data Source ID: efbf330e-1e5b-4485-8842-928643421614
-- Page ID mapped: {{1.Notion ID}}
-- Fields mapped (18 fields): title, status, priority, customerType, channel, lineId, location, product, rooms, dealValue, phone, email, firstContact, nextMeeting, lastFollowup, lostReason, assignedTo, notes
-### Google Sheet
+- ✅ ตรวจสอบ auth Make.com MCP สำเร็จ (Pichaya Sam, team 1157570, org 6783615)
+- ✅ ดึง handoff metadata จาก Google Drive: MBOX_LineOA_AutoLeadCapture_Handoff_20260424.json
+- ✅ ลอง trigger scenario via MCP → MakeError: Scenario is not activated
+- ✅ พบข้อจำกัด: Make.com MCP ไม่มี endpoint get_scenario_blueprint / update_scenario_blueprint / activate_scenario → ไม่สามารถ fix อัตโนมัติได้
+- ✅ เตรียม Fix Package ครบเซ็ต ส่งให้ user ทำใน UI ได้ทันที
+## 🐛 Bug ที่ 3 (Hypothesis)
 
-- เพิ่ม header "Notion ID" ที่ column S row 3
-- Spreadsheet ID: 1JEd2xElesLs6VwSp1_AUfgsqTzqPSZ1bw3eWkNOO3Iw
-- Sheet: 📋 Lead Template (gid: 2045924386)
-## 🔑 Key Information
+จาก analysis ของ handoff + pattern ที่ Make.com runtime ใหม่บังคับ → bug ที่ 3 น่าจะคือ:
 
-## 🧪 วิธีทดสอบระบบ
+Fix script ใหม่ (fix_blueprint.py) จัดการ 3 bugs พร้อมกัน:
 
-Test Scenario 1 (New Lead):
+1. Google Sheets spreadsheetId → /MBOX_Lead_Import_Template
+1. HTTP requestCompressedContent → false
+1. HTTP parseResponse → true (NEW)
+## 📦 Deliverables (อยู่ในโฟลเดอร์ Claude outputs)
 
-1. เปิด Google Sheet → sheet "📋 Lead Template"
-1. เพิ่มแถวใหม่ row 4+ — กรอก ชื่อ Lead, สถานะ, เบอร์โทร
-1. รอ max 15 นาที
-1. ✅ ดูใน Notion Lead DB — มี record ใหม่ขึ้นมา
-1. ✅ column S ใน Sheet มี Notion Page ID
-Test Scenario 2 (Update Lead):
+## 📋 Next Action (User ต้องทำ 5 ขั้นตอน)
 
-1. แก้ไขแถวที่มี Notion ID แล้ว — เปลี่ยน สถานะ / priority
-1. รอ max 15 นาที
-1. ✅ ดูใน Notion — record นั้น update แล้ว
-## 🔔 Auto Reminder — Daily Lead Digest → LINE OA (22/04/2026)
+1. Export blueprint จาก Make.com UI → save เป็น blueprint_export.json
+1. รัน python fix_blueprint.py → ได้ blueprint_fully_fixed.json
+1. Import blueprint ใหม่เป็น scenario v2
+1. Re-connect Google Sheets + LINE OA + HTTP credentials
+1. เพิ่ม Error Handler 'Ignore' + ตั้ง LINE Bot Mode = Manual + Activate
+## ⚠️ Critical Reminder
 
-### สิ่งที่ทำ
+- LINE OA Bot Mode ต้องเป็น Manual เท่านั้น (ถ้า Auto-reply เปิดอยู่ → replyToken expire ก่อน Make.com ใช้ → 401)
+- HTTP modules ทุกตัว ต้องมี Error Handler = Ignore (กัน scenario auto-deactivate)
+- Webhook URL ใหม่ หลัง re-import → ต้อง re-paste ใน LINE OA Webhook Settings
+## 🔗 Links
 
-สร้าง Google Apps Script ส่งสรุป Lead ไปยัง LINE OA ทุกเช้า 09:00 น. อัตโนมัติ
+- Scenario Editor: https://eu1.make.com/1157570/scenarios/5406773/edit
+- Handoff JSON: https://drive.google.com/file/d/15UUIoS3Ow9eG0Kig3VYQOwqS53fojG7J/view
+- Previous recap: Session Recap 24/04/2026
+## 🎯 Definition of Done
 
-### เหตุผลที่ใช้ Google Apps Script แทน Make.com
-
-- Make.com Free Tier จำกัด 2 Scenarios (ใช้ครบแล้ว)
-- Daily Reminder ต้องใช้ Schedule trigger ซึ่งไม่สามารถรวมกับ Sheets trigger ในไฟล์เดิมได้
-- Google Apps Script ฟรี 100% ไม่มีโควต้า
-### Config ที่ใช้
-
-### เนื้อหา Digest ที่ส่ง
-
-- 📌 Lead ที่มีนัดหมายวันนี้ (nextMeeting = วันนี้)
-- 🔥 Hot Lead Priority (Priority = High)
-- ⚠️ Follow-up ค้างเกิน 3 วัน
-### ไฟล์ Script
-
-- ชื่อไฟล์: MBOX_Daily_Digest_LINE_OA.gs
-- Deploy ที่: Google Apps Script (script.google.com)
-- ฟังก์ชันทดสอบ: testSendNow()
-- ฟังก์ชันตั้ง Trigger: setupDailyTrigger() (รัน 1 ครั้งเท่านั้น)
-### Status
-
-🟢 ACTIVE — ทดสอบส่ง LINE สำเร็จแล้ว
-
-## 📌 สิ่งที่ต้องทำต่อ (Pending)
-
-- [ ] ทดสอบ Scenario 1 จริง — เพิ่ม Lead ใหม่ใน Sheet แล้วรอดู Notion
-- [ ] ทดสอบ Scenario 2 จริง — แก้ข้อมูล Lead แล้วรอดู Notion sync
-- [ ] ถ้าต้องการ Instant trigger (ไม่ต้องรอ 15 นาที) → ติดตั้ง Make Add-on ใน Google Sheets
-- [ ] อัปเดต Notion Lead DB fields ให้ตรงกับ Key names ใน Scenario 2 ถ้า field ไม่ match
-- [ ] Run setupDailyTrigger() ใน Google Apps Script เพื่อเปิด Auto-send ทุกเช้า 09:00 น.
-## 🛠️ Tech Notes
-
-- Blueprint JSON ถูก inject ผ่าน JavaScript File object (ไม่ใช่ file upload ปกติ)
-- Notion Update a Data Source Item module ใช้ Data Source mode (ไม่ใช่ Database Legacy)
-- Fields ใน Scenario 2 ใช้ Key-Value format — Key = Notion property name, Value = Google Sheet column variable
-- Make.com canvas ใช้ WebGL rendering — ไม่สามารถ interact ผ่าน DOM querySelector ได้ตรงๆ
-- imt-coder elements ต้องใช้ change event (ไม่ใช่ input) เพื่อหลีกเลี่ยงการเปิด variable picker
+- [ ] Scenario re-imported with all 3 bugs fixed
+- [ ] All connections re-bound (Google Sheets, LINE OA, HTTP)
+- [ ] Error Handler = Ignore on all 19 HTTP modules
+- [ ] LINE OA Bot Mode = Manual
+- [ ] Webhook URL updated in LINE OA settings
+- [ ] Test message → Bot replies with Quick Reply 4 buttons → Lead logged to MBOX_Lead_Import_Template
