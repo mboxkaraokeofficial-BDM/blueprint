@@ -1,8 +1,8 @@
 # Untitled
 
-- **Notion ID:** cf8a7e260efb43d88066e33d5542c9d7
-- **URL:** https://www.notion.so/cf8a7e260efb43d88066e33d5542c9d7
-- **Last Edited:** 2026-04-23T02:22:00.000Z
+- **Notion ID:** 34f1ac219abd81c7a089ffe1d61635c4
+- **URL:** https://www.notion.so/Customer-Segments-MBOX-34f1ac219abd81c7a089ffe1d61635c4
+- **Last Edited:** 2026-04-27T10:01:00.000Z
 
 ---
 
