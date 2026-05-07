@@ -1,8 +1,8 @@
 # Untitled
 
-- **Notion ID:** 34f1ac219abd816e8f4df7946c645e6a
-- **URL:** https://www.notion.so/MBOX-34f1ac219abd816e8f4df7946c645e6a
-- **Last Edited:** 2026-04-27T10:01:00.000Z
+- **Notion ID:** 3591ac219abd810eb2a2d82bc7692056
+- **URL:** https://www.notion.so/CITIMAN-Animation-Storyboard-V2-Feature-Deep-Dive-3591ac219abd810eb2a2d82bc7692056
+- **Last Edited:** 2026-05-07T10:38:00.000Z
 
 ---
 
