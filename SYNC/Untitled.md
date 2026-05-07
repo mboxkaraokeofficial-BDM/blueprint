@@ -1,8 +1,8 @@
 # Untitled
 
-- **Notion ID:** 3591ac219abd815caf89cc6064fd0093
-- **URL:** https://www.notion.so/CITIMAN-Animation-V3-Kling-AI-Guide-Text-Motion-System-3591ac219abd815caf89cc6064fd0093
-- **Last Edited:** 2026-05-07T11:18:00.000Z
+- **Notion ID:** 83ded4cdf92a4be7846e267f9fa077e7
+- **URL:** https://www.notion.so/83ded4cdf92a4be7846e267f9fa077e7
+- **Last Edited:** 2026-05-05T17:20:00.000Z
 
 ---
 
