@@ -1,59 +1,68 @@
 # 🔧 Session Recap — 
 
-- **Notion ID:** 34e1ac219abd8193a0c3c7718ee2cb63
-- **URL:** https://www.notion.so/Session-Recap-Make-com-Blueprint-Final-Fix-26-04-2026-34e1ac219abd8193a0c3c7718ee2cb63
-- **Last Edited:** 2026-04-26T02:59:00.000Z
+- **Notion ID:** 34c1ac219abd8119869de41006965a92
+- **URL:** https://www.notion.so/Session-Recap-Make-com-Blueprint-Fix-24-April-2026-34c1ac219abd8119869de41006965a92
+- **Last Edited:** 2026-04-24T11:35:00.000Z
 
 ---
 
-Date: 26 April 2026  
+## 🎯 สรุป Session นี้
 
-Owner: Pamelosam  
+Debug และ fix Make.com Scenario #5406773 (MBOX — LINE OA Auto Lead Capture) — พบและแก้ไข 2 bugs หลักที่ทำให้ validation ล้มเหลวทุก webhook execution
 
-Scenario: #5406773 — MBOX LINE OA Auto Lead Capture  
+## 🐛 Bugs ที่พบ (2 ตัว)
 
-Status: 🟡 BLOCKED ON USER UI ACTION (MCP cannot reach scenario blueprint)
+Bug #1 — Wrong spreadsheetId (7 modules)
 
-## ✅ ทำอะไรไปบ้างใน session นี้
+- Module type: google-sheets:addRow
+- ค่าผิด: /1JEd2xElesLs6VwSp1_AUfgsqTzqPSZ1bw3eWkNOO3Iw (Drive file ID)
+- ค่าถูก: /MBOX_Lead_Import_Template (filename path)
+- จำนวน modules ที่ได้รับผลกระทบ: 7
+Bug #2 — Missing requestCompressedContent (19 modules)
 
-- ✅ ตรวจสอบ auth Make.com MCP สำเร็จ (Pichaya Sam, team 1157570, org 6783615)
-- ✅ ดึง handoff metadata จาก Google Drive: MBOX_LineOA_AutoLeadCapture_Handoff_20260424.json
-- ✅ ลอง trigger scenario via MCP → MakeError: Scenario is not activated
-- ✅ พบข้อจำกัด: Make.com MCP ไม่มี endpoint get_scenario_blueprint / update_scenario_blueprint / activate_scenario → ไม่สามารถ fix อัตโนมัติได้
-- ✅ เตรียม Fix Package ครบเซ็ต ส่งให้ user ทำใน UI ได้ทันที
-## 🐛 Bug ที่ 3 (Hypothesis)
+- Module type: http:MakeRequest
+- Parameter ที่ขาดหาย: requestCompressedContent
+- ค่าที่ต้องการ: false
+- จำนวน modules ที่ได้รับผลกระทบ: 19
+- สาเหตุ: Make.com อัปเดต requirement แต่ scenario เก่าไม่มี parameter นี้
+## 🔑 IDs สำคัญ
 
-จาก analysis ของ handoff + pattern ที่ Make.com runtime ใหม่บังคับ → bug ที่ 3 น่าจะคือ:
+## 🛠️ วิธีที่ Fix (XHR Interceptor)
 
-Fix script ใหม่ (fix_blueprint.py) จัดการ 3 bugs พร้อมกัน:
+Blueprint ใน Make.com PATCH body เป็น double-encoded JSON string ต้องใช้ JSON.parse() 2 รอบ
 
-1. Google Sheets spreadsheetId → /MBOX_Lead_Import_Template
-1. HTTP requestCompressedContent → false
-1. HTTP parseResponse → true (NEW)
-## 📦 Deliverables (อยู่ในโฟลเดอร์ Claude outputs)
+สร้าง XHR send() interceptor ที่:
 
-## 📋 Next Action (User ต้องทำ 5 ขั้นตอน)
+1. ดัก PATCH request ไปที่ URL ที่มี 5406773
+1. Parse JSON 2 ชั้น
+1. แก้ไข modules ทั้งหมดอัตโนมัติ (HTTP + Sheets)
+1. Re-serialize และปล่อยผ่าน
+ผลลัพธ์: {method:"double_parse", http:19, sheets:7, status:"OK"} — PATCH returns HTTP 200
 
-1. Export blueprint จาก Make.com UI → save เป็น blueprint_export.json
-1. รัน python fix_blueprint.py → ได้ blueprint_fully_fixed.json
-1. Import blueprint ใหม่เป็น scenario v2
-1. Re-connect Google Sheets + LINE OA + HTTP credentials
-1. เพิ่ม Error Handler 'Ignore' + ตั้ง LINE Bot Mode = Manual + Activate
-## ⚠️ Critical Reminder
+## ⚠️ ปัญหาที่ยังค้างอยู่
 
-- LINE OA Bot Mode ต้องเป็น Manual เท่านั้น (ถ้า Auto-reply เปิดอยู่ → replyToken expire ก่อน Make.com ใช้ → 401)
-- HTTP modules ทุกตัว ต้องมี Error Handler = Ignore (กัน scenario auto-deactivate)
-- Webhook URL ใหม่ หลัง re-import → ต้อง re-paste ใน LINE OA Webhook Settings
-## 🔗 Links
+แม้ PATCH จะ return 200 แต่ scenario ยัง fail ด้วย "Validation failed for 1 parameter(s)"
 
-- Scenario Editor: https://eu1.make.com/1157570/scenarios/5406773/edit
-- Handoff JSON: https://drive.google.com/file/d/15UUIoS3Ow9eG0Kig3VYQOwqS53fojG7J/view
-- Previous recap: Session Recap 24/04/2026
-## 🎯 Definition of Done
+สมมติฐาน:
 
-- [ ] Scenario re-imported with all 3 bugs fixed
-- [ ] All connections re-bound (Google Sheets, LINE OA, HTTP)
-- [ ] Error Handler = Ignore on all 19 HTTP modules
-- [ ] LINE OA Bot Mode = Manual
-- [ ] Webhook URL updated in LINE OA settings
-- [ ] Test message → Bot replies with Quick Reply 4 buttons → Lead logged to MBOX_Lead_Import_Template
+- PATCH endpoint อัปเดต metadata เท่านั้น — runtime blueprint อาจต้อง PUT ที่ /api/v2/scenarios/5406773/blueprint
+- Angular in-memory state ส่ง data เก่าออกไปใหม่เพราะเราแก้ in-transit แต่ Angular state ไม่เปลี่ยน
+- isinvalid: true flag ยังค้างจาก runs ก่อนหน้า — จะ clear เฉพาะเมื่อ execution สำเร็จ
+- อาจมี Bug ที่ 3 บน module type อื่นที่ยังไม่พบ
+## 📋 Next Steps ที่แนะนำ
+
+- [ ] ลอง Import blueprint_fully_fixed.json ผ่าน Make.com UI: Scenario Settings → Import Blueprint
+- [ ] ถ้ายังไม่ work: ลบ scenario แล้ว re-import ใหม่จาก blueprint_fully_fixed.json
+- [ ] Re-connect connections: Google Sheets + LINE OA token + HTTP หลัง re-import
+- [ ] เพิ่ม Error Handler Ignore บน HTTP modules ทุกตัว → ป้องกัน auto-deactivation
+- [ ] ทดสอบทั้ง 12 routes หลัง fix สำเร็จ
+- [ ] ตรวจสอบ LINE OA Bot Mode = Manual (ไม่ใช่ Auto-Reply) เสมอ
+## 📁 ไฟล์ที่เกี่ยวข้อง (GDrive)
+
+ดู MBOX_LineOA_AutoLeadCapture_Handoff_20260424.json บน Google Drive — มี script ครบถ้วนสำหรับ resume งานบนเครื่องใหม่
+
+## 📝 Technical Notes
+
+- Browser Extension Interference: Extension ตั้ง x-android-device header → blocks native fetch/XHR. Workaround: ใช้ XHR send() interceptor
+- CSRF Protection: Make.com API ต้องการ CSRF token — GET requests ผ่าน iframe native fetch return 401
+- LINE Bot Mode: ต้องเป็น Manual เสมอ — ถ้า built-in auto-reply เปิดอยู่ replyToken จะหมดอายุก่อน Make.com จะใช้งาน → 401 Unauthorized → scenario auto-deactivate
