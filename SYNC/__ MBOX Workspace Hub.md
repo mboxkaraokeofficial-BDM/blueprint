@@ -2,7 +2,7 @@
 
 - **Notion ID:** 3351ac219abd810f9b7fe85af576402a
 - **URL:** https://www.notion.so/MBOX-Workspace-Hub-3351ac219abd810f9b7fe85af576402a
-- **Last Edited:** 2026-05-07T05:33:00.000Z
+- **Last Edited:** 2026-05-08T19:20:00.000Z
 
 ---
 
@@ -42,6 +42,8 @@ MBOX_DriveInventory_v1.0.xlsx — Google Drive
 > 📄 🤖 Claude Memory Hub — START HERE
 
 > 📄 📚 SOP & Knowledge Base — MBOX
+
+> 📄 📋 Document Hub — MBOX
 
 > 📄 📖 คู่มือการใช้งานระบบ MBOX — Step by Step
 
