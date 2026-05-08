@@ -1,8 +1,8 @@
 # Untitled
 
-- **Notion ID:** 34f1ac219abd8179936cc99c3c00c2f1
-- **URL:** https://www.notion.so/Service-SOP-MBOX-34f1ac219abd8179936cc99c3c00c2f1
-- **Last Edited:** 2026-04-27T10:01:00.000Z
+- **Notion ID:** 3591ac219abd81f0b57fd2e2a80dbb27
+- **URL:** https://www.notion.so/CITIMAN-NLP-Content-Playbook-Session-3591ac219abd81f0b57fd2e2a80dbb27
+- **Last Edited:** 2026-05-07T10:21:00.000Z
 
 ---
 
