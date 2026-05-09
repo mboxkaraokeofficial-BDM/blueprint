@@ -1,0 +1,316 @@
+{
+  "name": "Notion → Git → Obsidian Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "id": "a1111111-1111-1111-1111-111111111111",
+      "name": "⏰ Every 30 Min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [180, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfg-1",
+              "name": "GITHUB_OWNER",
+              "value": "mboxkaraokeofficial-bdm",
+              "type": "string"
+            },
+            {
+              "id": "cfg-2",
+              "name": "GITHUB_REPO",
+              "value": "blueprint",
+              "type": "string"
+            },
+            {
+              "id": "cfg-3",
+              "name": "SYNC_FOLDER",
+              "value": "SYNC",
+              "type": "string"
+            },
+            {
+              "id": "cfg-4",
+              "name": "BRANCH",
+              "value": "main",
+              "type": "string"
+            },
+            {
+              "id": "cfg-5",
+              "name": "LOOKBACK_MIN",
+              "value": 65,
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a2222222-2222-2222-2222-222222222222",
+      "name": "⚙️ Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [380, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.notion.com/v1/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": []
+        },
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"filter\": {\n    \"value\": \"page\",\n    \"property\": \"object\"\n  },\n  \"sort\": {\n    \"direction\": \"descending\",\n    \"timestamp\": \"last_edited_time\"\n  },\n  \"page_size\": 50\n}",
+        "options": {}
+      },
+      "id": "a3333333-3333-3333-3333-333333333333",
+      "name": "📚 Search Notion Pages",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [580, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "notion-api-key",
+          "name": "Notion API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filter pages updated within LOOKBACK_MIN\nconst lookbackMin = $('⚙️ Config').first().json.LOOKBACK_MIN || 65;\nconst cutoff = new Date(Date.now() - lookbackMin * 60 * 1000);\n\nconst results = $input.first().json.results || [];\n\nconst recent = results.filter(page => {\n  const edited = new Date(page.last_edited_time);\n  return edited >= cutoff;\n});\n\nif (recent.length === 0) {\n  // No updates — return empty to stop execution\n  return [];\n}\n\nreturn recent.map(page => ({\n  json: {\n    pageId: page.id,\n    title: page.properties?.title?.title?.[0]?.plain_text ||\n           page.properties?.Name?.title?.[0]?.plain_text ||\n           page.title?.[0]?.plain_text ||\n           'Untitled',\n    lastEdited: page.last_edited_time,\n    url: page.url,\n    GITHUB_OWNER: $('⚙️ Config').first().json.GITHUB_OWNER,\n    GITHUB_REPO: $('⚙️ Config').first().json.GITHUB_REPO,\n    SYNC_FOLDER: $('⚙️ Config').first().json.SYNC_FOLDER,\n    BRANCH: $('⚙️ Config').first().json.BRANCH\n  }\n}));\n"
+      },
+      "id": "a4444444-4444-4444-4444-444444444444",
+      "name": "🔍 Filter Recent Pages",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [780, 300]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "a5555555-5555-5555-5555-555555555555",
+      "name": "🔄 Loop Pages",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [980, 300]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.notion.com/v1/blocks/{{$json.pageId}}/children?page_size=100",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a6666666-6666-6666-6666-666666666666",
+      "name": "📝 Get Page Blocks",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1180, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "notion-api-key",
+          "name": "Notion API Key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Convert Notion blocks to Markdown\nconst page = $('🔄 Loop Pages').first().json;\nconst blocks = $input.first().json.results || [];\n\nfunction richText(arr) {\n  if (!arr || arr.length === 0) return '';\n  return arr.map(rt => {\n    let t = rt.plain_text || '';\n    const a = rt.annotations || {};\n    if (a.code) t = `\\`${t}\\``;\n    if (a.bold) t = `**${t}**`;\n    if (a.italic) t = `*${t}*`;\n    if (a.strikethrough) t = `~~${t}~~`;\n    if (rt.href) t = `[${t}](${rt.href})`;\n    return t;\n  }).join('');\n}\n\nfunction blocksToMd(blocks) {\n  let md = '';\n  let numCounter = 0;\n  for (const b of blocks) {\n    if (b.type !== 'numbered_list_item') numCounter = 0;\n    switch (b.type) {\n      case 'paragraph':\n        const p = richText(b.paragraph?.rich_text);\n        md += p ? `${p}\\n\\n` : '\\n';\n        break;\n      case 'heading_1':\n        md += `# ${richText(b.heading_1?.rich_text)}\\n\\n`;\n        break;\n      case 'heading_2':\n        md += `## ${richText(b.heading_2?.rich_text)}\\n\\n`;\n        break;\n      case 'heading_3':\n        md += `### ${richText(b.heading_3?.rich_text)}\\n\\n`;\n        break;\n      case 'bulleted_list_item':\n        md += `- ${richText(b.bulleted_list_item?.rich_text)}\\n`;\n        break;\n      case 'numbered_list_item':\n        numCounter++;\n        md += `${numCounter}. ${richText(b.numbered_list_item?.rich_text)}\\n`;\n        break;\n      case 'to_do':\n        const chk = b.to_do?.checked ? 'x' : ' ';\n        md += `- [${chk}] ${richText(b.to_do?.rich_text)}\\n`;\n        break;\n      case 'code':\n        const lang = b.code?.language || '';\n        md += `\\`\\`\\`${lang}\\n${richText(b.code?.rich_text)}\\n\\`\\`\\`\\n\\n`;\n        break;\n      case 'quote':\n        md += `> ${richText(b.quote?.rich_text)}\\n\\n`;\n        break;\n      case 'callout':\n        const icon = b.callout?.icon?.emoji || '';\n        md += `> ${icon} ${richText(b.callout?.rich_text)}\\n\\n`;\n        break;\n      case 'divider':\n        md += `---\\n\\n`;\n        break;\n      case 'image':\n        const imgUrl = b.image?.external?.url || b.image?.file?.url || '';\n        const cap = richText(b.image?.caption);\n        md += `![${cap}](${imgUrl})\\n\\n`;\n        break;\n      case 'child_page':\n        md += `- [[${b.child_page?.title}]]\\n`;\n        break;\n      case 'toggle':\n        md += `<details><summary>${richText(b.toggle?.rich_text)}</summary>\\n\\n</details>\\n\\n`;\n        break;\n      case 'table_of_contents':\n        break;\n      default:\n        break;\n    }\n  }\n  return md.trim();\n}\n\n// Build sanitized filename\nconst sanitizeFilename = (title) => {\n  return title\n    .replace(/[/\\\\:*?\"<>|]/g, '_')\n    .replace(/\\s+/g, '_')\n    .replace(/_{2,}/g, '_')\n    .substring(0, 100);\n};\n\nconst notionId = page.pageId.replace(/-/g, '');\nconst filename = sanitizeFilename(page.title);\nconst filePath = `${page.SYNC_FOLDER}/${filename}.md`;\n\n// Build frontmatter block\nconst header = `# ${page.title}\\n\\n- **Notion ID:** ${notionId}\\n- **URL:** ${page.url}\\n- **Last Edited:** ${page.lastEdited}\\n\\n---\\n\\n`;\n\nconst body = blocksToMd(blocks);\nconst fullContent = header + body;\n\nreturn [{\n  json: {\n    filePath,\n    filename: `${filename}.md`,\n    content: fullContent,\n    contentBase64: Buffer.from(fullContent).toString('base64'),\n    commitMessage: `sync: ${page.title}`,\n    GITHUB_OWNER: page.GITHUB_OWNER,\n    GITHUB_REPO: page.GITHUB_REPO,\n    BRANCH: page.BRANCH\n  }\n}];\n"
+      },
+      "id": "a7777777-7777-7777-7777-777777777777",
+      "name": "✨ Blocks → Markdown",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1380, 300]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/repos/{{$json.GITHUB_OWNER}}/{{$json.GITHUB_REPO}}/contents/{{$json.filePath}}?ref={{$json.BRANCH}}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "a8888888-8888-8888-8888-888888888888",
+      "name": "🔍 Get File SHA",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1580, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "github-token",
+          "name": "GitHub Token"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Merge markdown data + existing file SHA (for update)\nconst md = $('✨ Blocks → Markdown').first().json;\nconst ghResponse = $input.first().json;\n\n// SHA is required when updating an existing file\nconst sha = ghResponse?.sha || null;\n\nreturn [{\n  json: {\n    ...md,\n    sha\n  }\n}];\n"
+      },
+      "id": "a9999999-9999-9999-9999-999999999999",
+      "name": "📦 Merge SHA",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1780, 300]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.github.com/repos/{{$json.GITHUB_OWNER}}/{{$json.GITHUB_REPO}}/contents/{{$json.filePath}}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"message\": \"{{ $json.commitMessage }}\",\n  \"content\": \"{{ $json.contentBase64 }}\",\n  \"branch\": \"{{ $json.BRANCH }}\"\n  {{ $json.sha ? ', \"sha\": \"' + $json.sha + '\"' : '' }}\n}",
+        "options": {}
+      },
+      "id": "aааааааа-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "name": "⬆️ Push to GitHub",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1980, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "github-token",
+          "name": "GitHub Token"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "abbbbbbб-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      "name": "✅ Done",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [2180, 300]
+    }
+  ],
+  "connections": {
+    "⏰ Every 30 Min": {
+      "main": [
+        [{ "node": "⚙️ Config", "type": "main", "index": 0 }]
+      ]
+    },
+    "⚙️ Config": {
+      "main": [
+        [{ "node": "📚 Search Notion Pages", "type": "main", "index": 0 }]
+      ]
+    },
+    "📚 Search Notion Pages": {
+      "main": [
+        [{ "node": "🔍 Filter Recent Pages", "type": "main", "index": 0 }]
+      ]
+    },
+    "🔍 Filter Recent Pages": {
+      "main": [
+        [{ "node": "🔄 Loop Pages", "type": "main", "index": 0 }]
+      ]
+    },
+    "🔄 Loop Pages": {
+      "main": [
+        [{ "node": "📝 Get Page Blocks", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "📝 Get Page Blocks": {
+      "main": [
+        [{ "node": "✨ Blocks → Markdown", "type": "main", "index": 0 }]
+      ]
+    },
+    "✨ Blocks → Markdown": {
+      "main": [
+        [{ "node": "🔍 Get File SHA", "type": "main", "index": 0 }]
+      ]
+    },
+    "🔍 Get File SHA": {
+      "main": [
+        [{ "node": "📦 Merge SHA", "type": "main", "index": 0 }]
+      ]
+    },
+    "📦 Merge SHA": {
+      "main": [
+        [{ "node": "⬆️ Push to GitHub", "type": "main", "index": 0 }]
+      ]
+    },
+    "⬆️ Push to GitHub": {
+      "main": [
+        [{ "node": "🔄 Loop Pages", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": null,
+  "tags": ["notion", "obsidian", "sync"],
+  "triggerCount": 0,
+  "versionId": "1"
+}
