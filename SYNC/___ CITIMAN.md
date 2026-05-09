@@ -75,3 +75,5 @@ Marketing
 
 > 📄 🧠 CITIMAN Content Playbook
 
+> 📄 🎙️ CITIMAN — 30s VO Script · Board 03 (Before vs After)
+
