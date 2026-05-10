@@ -77,3 +77,5 @@ Marketing
 
 > 📄 🎙️ CITIMAN — 30s VO Script · Board 03 (Before vs After)
 
+> 📄 🎬 CITIMAN — Production Pack: AI Prompts + VO Script (All 5 Boards × 30 Shots)
+
