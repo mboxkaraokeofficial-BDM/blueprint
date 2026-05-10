@@ -1,14 +1,28 @@
 # 📝 Session Recaps
 
-- **Notion ID:** 3581ac219abd817f82bcd7ee3fb17dcd
-- **URL:** https://www.notion.so/Session-Recaps-3581ac219abd817f82bcd7ee3fb17dcd
+- **Notion ID:** 3581ac219abd81d6b9aac89b5ce72d61
+- **URL:** https://www.notion.so/Session-Recaps-3581ac219abd81d6b9aac89b5ce72d61
 - **Last Edited:** 2026-05-06T05:20:00.000Z
 
 ---
 
-## CITIMAN Session Recaps
+## BLUEPRINT Session Recaps
 
-> 📄 🎬 Session Recap — CITIMAN Animation Brief + Storyboards (05/05/2026)
+Morning interviews และ personal reflections
 
-> 📄 🎤 Session Recap — CITIMAN Pitch Deck for ITGreen × IRC (30/04/2026)
+> 📄 📁 Session Recap — G Drive Organization (30/04/2026)
+
+> 📄 🤖 Session Recap — Agent Team + Hyperpillar Platform (29/04/2026)
+
+> 📄 🔐 Session Recap — hyperpillar.space Auth Complete: MBOX + Citiman (05/05/2026)
+
+> 📄 ⚙️ Session Recap — Make.com Auto-Sync Google Sheet → Notion (22/04/2026)
+
+> 📄 🔧 Session Recap — Make.com Blueprint Final Fix (26/04/2026)
+
+> 📄 🚀 Session Recap — n8n Migration + Google Form (27/04/2026)
+
+> 📄 Session Recap — 24 April 2026
+
+> 📄 🤖 Session Recap — Nightly Auto-Update (25 April 2026)
 
