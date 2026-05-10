@@ -1,12 +1,12 @@
 # 📖 Playbook
 
-- **Notion ID:** 3581ac219abd81d592c6df70e704fafa
-- **URL:** https://www.notion.so/Playbook-3581ac219abd81d592c6df70e704fafa
-- **Last Edited:** 2026-05-06T05:20:00.000Z
+- **Notion ID:** 3581ac219abd8197956dcbbb3d89a25b
+- **URL:** https://www.notion.so/Playbook-3581ac219abd8197956dcbbb3d89a25b
+- **Last Edited:** 2026-05-06T05:19:00.000Z
 
 ---
 
-## BLUEPRINT Playbook
+## MBOX Playbook
 
-วิธีใช้ชีวิต การตัดสินใจ และ personal principles
+กฎ วิธีทำงาน SOP และ best practices ทั้งหมดของ MBOX
 
