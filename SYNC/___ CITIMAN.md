@@ -79,3 +79,5 @@ Marketing
 
 > 📄 🎬 CITIMAN — Production Pack: AI Prompts + VO Script (All 5 Boards × 30 Shots)
 
+> 📄 🔧 CITIMAN — Auto Changelog
+
