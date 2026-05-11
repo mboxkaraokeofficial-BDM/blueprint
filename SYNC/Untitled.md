@@ -1,8 +1,8 @@
 # Untitled
 
-- **Notion ID:** 3591ac219abd810eb2a2d82bc7692056
-- **URL:** https://www.notion.so/CITIMAN-Animation-Storyboard-V2-Feature-Deep-Dive-3591ac219abd810eb2a2d82bc7692056
-- **Last Edited:** 2026-05-07T10:38:00.000Z
+- **Notion ID:** 1d8f9f6eac264ee3ad4921cd879cdf5f
+- **URL:** https://www.notion.so/1d8f9f6eac264ee3ad4921cd879cdf5f
+- **Last Edited:** 2026-05-05T17:20:00.000Z
 
 ---
 
