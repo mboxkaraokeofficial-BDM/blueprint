@@ -1,8 +1,17 @@
 # Untitled
 
-- **Notion ID:** 3591ac219abd810eb2a2d82bc7692056
-- **URL:** https://www.notion.so/CITIMAN-Animation-Storyboard-V2-Feature-Deep-Dive-3591ac219abd810eb2a2d82bc7692056
-- **Last Edited:** 2026-05-07T10:38:00.000Z
+- **Notion ID:** 34f1ac219abd80b49453e059a545152f
+- **URL:** https://www.notion.so/Brand-Voice-MBOX-34f1ac219abd80b49453e059a545152f
+- **Last Edited:** 2026-04-27T04:03:00.000Z
 
 ---
+
+Memory:   Brand Voice MBOX
+Type:     Preference
+
+Agent:    Content
+Business: MBOX
+Detail:   โทน Apple+Leo Beer, High Energy, ใช้ NLP Scarcity+Social Proof
+Active:   ✅
+Priority: High
 
