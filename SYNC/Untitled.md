@@ -1,8 +1,8 @@
 # Untitled
 
-- **Notion ID:** 34f1ac219abd815c970fda24dfa92fec
-- **URL:** https://www.notion.so/Decision-Rules-MBOX-34f1ac219abd815c970fda24dfa92fec
-- **Last Edited:** 2026-04-27T10:01:00.000Z
+- **Notion ID:** 3591ac219abd810eb2a2d82bc7692056
+- **URL:** https://www.notion.so/CITIMAN-Animation-Storyboard-V2-Feature-Deep-Dive-3591ac219abd810eb2a2d82bc7692056
+- **Last Edited:** 2026-05-07T10:38:00.000Z
 
 ---
 
